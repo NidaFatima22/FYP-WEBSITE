@@ -1,1 +1,51 @@
-[]
+[
+  {
+    "id": "audit_1784449468480_rxz0r",
+    "url": "ai-automation-agency-website-rouge.vercel.app",
+    "generatedAt": "2026-07-19T08:24:28.480Z",
+    "source": "rule-based",
+    "interviewAnswers": {
+      "goal": "repeat customers",
+      "targetCustomers": "ecommerce stotes",
+      "pricingStance": "nothing",
+      "challenges": "na"
+    },
+    "report": {
+      "url": "ai-automation-agency-website-rouge.vercel.app",
+      "generatedAt": "2026-07-19T08:24:28.480Z",
+      "source": "rule-based",
+      "seoSnapshot": {
+        "googleRankingEstimate": "page 1 (4-10)",
+        "pageSpeedScore": 44,
+        "mobileFriendly": true,
+        "metaDescriptionMissing": false,
+        "altTextCoverage": 40
+      },
+      "competitorComparisons": [
+        "3 of 5 niche competitors run bundle pricing you may not offer.",
+        "Average competitor catalog (~217 items) is larger than yours (~68).",
+        "3 competitors run an always-on free shipping threshold."
+      ],
+      "weaknesses": [
+        "Estimated Google ranking for your main keyword: page 1 (4-10) — real visibility is likely limited.",
+        "Page speed score is 44/100 — slow load times hurt both ranking and conversion.",
+        "Only 40% of product images have alt text — a missed, easy SEO win.",
+        "Checkout requires account creation before payment.",
+        "Owner-reported challenge: na"
+      ],
+      "recommendations": [
+        "Target page-1 ranking with on-page SEO fixes (title tags, meta descriptions, internal links) before spending more on ads.",
+        "Compress product images and lazy-load below-the-fold content to lift page speed.",
+        "Add descriptive alt text to product images to improve image-search ranking.",
+        "Introduce a starter bundle to match competitor pricing tiers.",
+        "Test a free-shipping threshold against current margin.",
+        "Add guest checkout to reduce drop-off."
+      ],
+      "goalRoadmap": [
+        "Set up a post-purchase email flow — most repeat-customer revenue is lost in the first 30 days of silence.",
+        "Introduce a simple loyalty or reorder incentive matched to your pricing tier.",
+        "Segment past buyers by product category and target them with relevant restock or complementary offers."
+      ]
+    }
+  }
+]

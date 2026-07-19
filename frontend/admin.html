@@ -8,9 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0B0B12; --bg-soft:#131320; --ink:#F3F1FA; --muted:#A6A2BE;
-    --gold:#F2B705; --gold-2:#FFD34D; --violet:#8C6BFF; --teal:#2FE6C4;
-    --card:#15151F; --border:rgba(255,255,255,0.09); --danger:#FF6B6B;
+    --bg:#FAF8FF; --bg-soft:#F1ECFB; --ink:#1C1533; --muted:#6B6284;
+    --gold:#FF6B4A; --gold-2:#FF8F6B; --violet:#6C5CE7; --teal:#00BFA6;
+    --card:#FFFFFF; --border:rgba(28,21,51,0.09); --danger:#E24444;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{ background:var(--bg); color:var(--ink); font-family:'Inter', sans-serif; min-height:100vh; }
@@ -23,12 +23,15 @@
   }
   .login-card{
     width:100%; max-width:380px; background:var(--card); border:1px solid var(--border);
-    border-radius:18px; padding:36px 32px; box-shadow:0 30px 80px -35px rgba(0,0,0,0.6);
+    border-radius:18px; padding:36px 32px; box-shadow:0 30px 70px -35px rgba(28,21,51,0.22);
+    animation:cardIn .5s cubic-bezier(.2,.8,.2,1);
   }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(14px) scale(.98); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  @media (prefers-reduced-motion: reduce){ .login-card{ animation:none; } }
   .login-card .logo{ display:flex; align-items:center; gap:9px; font-family:'Fraunces'; font-weight:600; font-size:20px; margin-bottom:6px; }
   .login-card .mark{
     width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, var(--gold), var(--violet));
-    display:flex; align-items:center; justify-content:center; color:#14131f; font-weight:700; font-size:14px;
+    display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px;
   }
   .login-card .sub{ font-size:13px; color:var(--muted); margin-bottom:26px; }
   .field{ margin-bottom:14px; }
@@ -39,7 +42,7 @@
   }
   .field input:focus{ outline:2px solid var(--gold); outline-offset:1px; }
   .login-btn{
-    width:100%; margin-top:8px; background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f;
+    width:100%; margin-top:8px; background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#fff;
     border:none; padding:13px; border-radius:10px; font-weight:600; font-size:14px; cursor:pointer;
   }
   .login-btn:disabled{ opacity:.6; cursor:default; }
@@ -52,7 +55,7 @@
   .logo{ display:flex; align-items:center; gap:9px; font-family:'Fraunces'; font-weight:600; font-size:19px; }
   .logo .mark{
     width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg, var(--gold), var(--violet));
-    display:flex; align-items:center; justify-content:center; color:#14131f; font-weight:700; font-size:13px;
+    display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px;
   }
   .logout-btn{
     background:transparent; border:1px solid var(--border); color:var(--ink); padding:9px 16px;
@@ -60,7 +63,8 @@
   }
   .wrap{ max-width:1100px; margin:0 auto; padding:36px 28px 80px; }
   .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:36px; }
-  .stat{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; }
+  .stat{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; transition:transform .2s ease, box-shadow .2s ease; }
+  .stat:hover{ transform:translateY(-4px); box-shadow:0 16px 34px -20px rgba(28,21,51,0.25); }
   .stat .mono{ font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
   .stat .num{ font-family:'Fraunces'; font-size:30px; font-weight:600; margin-top:8px; color:var(--gold-2); }
 
@@ -69,7 +73,7 @@
     background:transparent; border:1px solid var(--border); padding:9px 18px; border-radius:100px;
     font-size:13px; font-weight:600; cursor:pointer; color:var(--muted);
   }
-  .tab.active{ background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f; border-color:transparent; }
+  .tab.active{ background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#fff; border-color:transparent; }
 
   .panel{ display:none; }
   .panel.active{ display:block; }
