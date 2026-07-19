@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoreSage — AI Business Consultant for E-commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0B12;
+    --bg-soft:#131320;
+    --ink:#F3F1FA;
+    --muted:#A6A2BE;
+    --gold:#F2B705;
+    --gold-2:#FFD34D;
+    --violet:#8C6BFF;
+    --teal:#2FE6C4;
+    --card:#15151F;
+    --border:rgba(255,255,255,0.09);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:64px 64px;
+  }
+  ::selection{ background:var(--gold); color:#14131f; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .display{ font-family:'Fraunces', serif; }
+  a{ color:inherit; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 28px; }
+  .grad-text{
+    background:linear-gradient(100deg, var(--gold) 0%, var(--violet) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+
+  /* reveal-on-scroll */
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ambient glow blobs */
+  .blobs{ position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+  .blob{ position:absolute; border-radius:50%; filter:blur(110px); opacity:.30; }
+  .blob.b1{ width:560px; height:560px; background:var(--violet); top:-180px; left:-140px; animation:float1 24s ease-in-out infinite; }
+  .blob.b2{ width:480px; height:480px; background:var(--gold); top:300px; right:-180px; animation:float2 28s ease-in-out infinite; }
+  .blob.b3{ width:400px; height:400px; background:var(--teal); bottom:-160px; left:30%; animation:float1 32s ease-in-out infinite reverse; }
+  @keyframes float1{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(40px,60px) scale(1.1);} }
+  @keyframes float2{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-50px,40px) scale(0.92);} }
+
+  /* nav */
+  header{ position:sticky; top:0; z-index:50; background:rgba(11,11,18,0.72); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); }
+  nav{ display:flex; align-items:center; justify-content:space-between; padding:16px 28px; max-width:1120px; margin:0 auto; }
+  .logo{ display:flex; align-items:center; gap:9px; font-family:'Fraunces'; font-weight:600; font-size:20px; letter-spacing:-0.01em; }
+  .logo .mark{
+    width:28px; height:28px; border-radius:8px;
+    background:linear-gradient(135deg, var(--gold), var(--violet));
+    display:flex; align-items:center; justify-content:center; color:#14131f; font-family:'Fraunces'; font-weight:700; font-size:14px;
+  }
+  nav ul{ list-style:none; display:flex; gap:30px; }
+  nav ul a{ text-decoration:none; font-size:14px; font-weight:500; opacity:.72; transition:opacity .15s; position:relative; }
+  nav ul a::after{ content:""; position:absolute; left:0; bottom:-4px; width:0; height:1px; background:var(--gold); transition:width .2s ease; }
+  nav ul a:hover{ opacity:1; }
+  nav ul a:hover::after{ width:100%; }
+  .nav-links{ display:flex; align-items:center; gap:30px; }
+  .nav-cta{
+    background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f !important; opacity:1 !important;
+    padding:10px 18px; border-radius:100px; font-size:13px !important; font-weight:600 !important;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .nav-cta:hover{ transform:translateY(-1px); box-shadow:0 8px 24px rgba(242,183,5,0.35); }
+
+  /* hero */
+  .hero{ padding:88px 0 40px; position:relative; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono'; font-size:12px;
+    letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--gold-2);
+    background:rgba(242,183,5,0.10); padding:7px 12px; border-radius:100px; margin-bottom:26px;
+    border:1px solid rgba(242,183,5,0.2);
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 1.6s infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1;} 50%{ opacity:.3;} }
+  h1.hero-title{ font-family:'Fraunces'; font-size:clamp(38px,6vw,68px); line-height:1.04; letter-spacing:-0.02em; font-weight:600; max-width:820px; }
+  .hero-sub{ margin-top:22px; font-size:18px; line-height:1.6; max-width:560px; color:var(--muted); }
+  .hero-actions{ display:flex; gap:14px; margin-top:34px; flex-wrap:wrap; }
+  .btn-primary{
+    background:linear-gradient(100deg, var(--gold), var(--gold-2));
+    color:#14131f; border:none; padding:14px 26px; border-radius:100px; font-weight:600; font-size:14.5px;
+    cursor:pointer; box-shadow:0 10px 30px -8px rgba(242,183,5,0.45); transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 16px 34px -8px rgba(242,183,5,0.6); }
+  .btn-ghost{
+    background:transparent; border:1px solid var(--border); color:var(--ink); padding:14px 24px; border-radius:100px;
+    font-weight:600; font-size:14.5px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
+  }
+  .btn-ghost:hover{ border-color:var(--gold); background:rgba(242,183,5,0.06); }
+
+  /* scan card */
+  .scan-card{
+    margin:56px auto 0; max-width:600px; background:var(--card); border:1px solid var(--border);
+    border-radius:20px; box-shadow:0 30px 80px -35px rgba(0,0,0,0.6); overflow:hidden;
+    position:relative;
+  }
+  .scan-card::before{
+    content:""; position:absolute; inset:-1px; border-radius:20px; padding:1px;
+    background:linear-gradient(120deg, rgba(242,183,5,0.35), rgba(140,107,255,0.35), rgba(47,230,196,0.25));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    animation:borderGlow 6s linear infinite; pointer-events:none;
+  }
+  @keyframes borderGlow{ 0%{ opacity:.5;} 50%{ opacity:1;} 100%{ opacity:.5;} }
+  .scan-head{ padding:22px 26px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .scan-head .mono{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .status-pill{ display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono'; font-size:11px; color:var(--teal); font-weight:600; }
+  .status-pill .dot{ width:6px; height:6px; border-radius:50%; background:var(--teal); }
+  .status-pill.off{ color:#716d84; }
+  .status-pill.off .dot{ background:#4a475c; }
+  .scan-form{ padding:20px 26px; display:flex; gap:10px; border-bottom:1px solid var(--border); }
+  .scan-form input{
+    flex:1; border:1px solid var(--border); background:var(--bg-soft); border-radius:10px;
+    padding:12px 14px; font-family:'IBM Plex Mono'; font-size:13px; color:var(--ink);
+  }
+  .scan-form input:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+  .scan-form button{
+    background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f; border:none; padding:0 20px; border-radius:10px;
+    font-family:'Inter'; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .15s;
+  }
+  .scan-form button:disabled{ opacity:.5; cursor:default; }
+  .scan-body{ padding:22px 26px 26px; min-height:150px; }
+  .scan-line{
+    font-family:'IBM Plex Mono'; font-size:13px; line-height:2; display:flex; justify-content:space-between; gap:12px;
+    opacity:0; transform:translateX(-6px); animation:lineIn .35s ease forwards;
+  }
+  .scan-line .status{ color:var(--teal); font-weight:600; white-space:nowrap; }
+  @keyframes lineIn{ to{ opacity:1; transform:translateX(0);} }
+  .scan-placeholder{ font-family:'IBM Plex Mono'; font-size:12.5px; color:#716d84; text-align:center; padding-top:36px; }
+  .scan-total{ margin-top:16px; padding-top:14px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; font-family:'IBM Plex Mono'; font-size:13px; font-weight:600; }
+
+  /* sections */
+  section{ padding:100px 0; position:relative; }
+  .section-label{ font-family:'IBM Plex Mono'; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-2); font-weight:600; margin-bottom:14px; }
+  h2.section-title{ font-family:'Fraunces'; font-size:clamp(28px,3.6vw,42px); letter-spacing:-0.01em; font-weight:600; max-width:640px; line-height:1.15; color:var(--ink); }
+  .section-sub{ margin-top:16px; max-width:560px; color:var(--muted); font-size:16px; line-height:1.65; }
+
+  .dark{ background:var(--bg-soft); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .dark .section-sub{ color:var(--muted); }
+  .dark .section-label{ color:var(--teal); }
+
+  /* gap cards */
+  .gap-grid{ margin-top:56px; display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .gap-item{
+    background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:30px 26px;
+    transition:transform .25s ease, border-color .25s ease;
+  }
+  .gap-item:hover{ transform:translateY(-6px); border-color:rgba(242,183,5,0.35); }
+  .gap-item .mono.tag{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; opacity:.55; }
+  .gap-item .qty{ font-family:'Fraunces'; font-size:30px; font-weight:600; margin:12px 0 10px; }
+  .gap-item p{ font-size:14px; line-height:1.6; color:var(--muted); }
+
+  /* steps */
+  .steps{ margin-top:56px; display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  .step{
+    background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .step:hover{ transform:translateY(-6px); box-shadow:0 20px 44px -24px rgba(0,0,0,0.6); border-color:rgba(140,107,255,0.35); }
+  .step .num{
+    width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, var(--gold), var(--violet)); color:#14131f; font-family:'IBM Plex Mono'; font-size:13px; font-weight:600;
+    margin-bottom:16px;
+  }
+  .step h3{ font-family:'Fraunces'; font-size:19px; font-weight:600; margin-bottom:8px; }
+  .step p{ font-size:14.5px; line-height:1.6; color:var(--muted); }
+
+  /* interview */
+  .interview-grid{ display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; margin-top:48px; }
+  .chat{ background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px; display:flex; flex-direction:column; gap:14px; box-shadow:0 24px 60px -34px rgba(0,0,0,0.55); }
+  .bubble{ max-width:82%; padding:12px 15px; font-size:14px; line-height:1.5; border-radius:14px; }
+  .bubble.bot{ background:var(--bg-soft); align-self:flex-start; border-bottom-left-radius:4px; }
+  .bubble.user{ background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f; align-self:flex-end; border-bottom-right-radius:4px; }
+  .bubble .mono{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; opacity:.6; display:block; margin-bottom:4px; }
+  .typing{ display:flex; gap:4px; align-self:flex-start; padding:12px 15px; background:var(--bg-soft); border-radius:14px; border-bottom-left-radius:4px; }
+  .typing span{ width:6px; height:6px; border-radius:50%; background:var(--muted); animation:bounce 1.2s infinite; }
+  .typing span:nth-child(2){ animation-delay:.15s; }
+  .typing span:nth-child(3){ animation-delay:.3s; }
+  @keyframes bounce{ 0%,60%,100%{ transform:translateY(0);} 30%{ transform:translateY(-5px);} }
+
+  /* report */
+  .report-card{ background:var(--card); border:1px solid var(--border); border-radius:18px; margin-top:52px; box-shadow:0 24px 60px -34px rgba(0,0,0,0.55); overflow:hidden; }
+  .report-card .rh{ display:flex; justify-content:space-between; align-items:center; padding:20px 26px; border-bottom:1px solid var(--border); background:var(--bg-soft); }
+  .report-card .rh .mono{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .report-cols{ display:grid; grid-template-columns:repeat(3,1fr); }
+  .report-col{ padding:24px 26px; border-right:1px solid var(--border); }
+  .report-col:last-child{ border-right:none; }
+  .report-col .ct{ font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--violet); font-weight:600; margin-bottom:14px; }
+  .report-col ul{ list-style:none; display:flex; flex-direction:column; gap:12px; }
+  .report-col li{ font-size:13.5px; line-height:1.55; padding-left:16px; position:relative; color:var(--ink); }
+  .report-col li::before{ content:"→"; position:absolute; left:0; color:var(--gold); }
+
+  /* comparison table */
+  table.cmp{ width:100%; border-collapse:collapse; margin-top:48px; }
+  table.cmp th, table.cmp td{ text-align:left; padding:15px 16px; border-bottom:1px solid var(--border); font-size:14px; }
+  table.cmp th{ font-family:'IBM Plex Mono'; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600; }
+  table.cmp td.yes{ color:var(--teal); font-weight:600; }
+  table.cmp td.no{ color:#565169; }
+  table.cmp tr.highlight td{ background:rgba(140,107,255,0.08); font-weight:600; }
+  table.cmp tr.highlight td:first-child{ border-left:2px solid var(--violet); padding-left:14px; }
+
+  /* cta */
+  .cta{ background:linear-gradient(120deg, #1C1730 0%, #241A3A 55%, #2A1A2E 100%); text-align:center; border-top:1px solid var(--border); }
+  .cta h2{ font-family:'Fraunces'; font-size:clamp(28px,4vw,44px); font-weight:600; letter-spacing:-0.01em; max-width:600px; margin:0 auto; }
+  .cta p{ margin-top:16px; color:var(--muted); max-width:480px; margin-left:auto; margin-right:auto; }
+  .cta-form{ display:flex; justify-content:center; gap:8px; margin-top:36px; max-width:420px; margin-left:auto; margin-right:auto; }
+  .cta-form input{ flex:1; padding:14px 16px; border:1px solid var(--border); border-radius:100px; background:rgba(255,255,255,0.05); color:#fff; font-family:'IBM Plex Mono'; font-size:13px; }
+  .cta-form input::placeholder{ color:var(--muted); }
+  .cta-form input:focus{ outline:2px solid var(--gold); }
+  .cta-form button{ background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f; border:none; padding:0 22px; border-radius:100px; font-size:13px; font-weight:600; cursor:pointer; }
+  .cta-note{ margin-top:14px; font-family:'IBM Plex Mono'; font-size:11px; color:var(--muted); }
+
+  footer{ padding:36px 0; border-top:1px solid var(--border); }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  footer .mono{ font-size:12px; color:var(--muted); }
+
+  @media(max-width:760px){
+    .nav-links{ display:none; }
+    .gap-grid{ grid-template-columns:1fr; }
+    .steps{ grid-template-columns:1fr; }
+    .interview-grid{ grid-template-columns:1fr; gap:36px; }
+    .report-cols{ grid-template-columns:1fr; }
+    .report-col{ border-right:none; border-bottom:1px solid var(--border); }
+    .cta-form{ flex-direction:column; }
+    table.cmp{ font-size:12px; }
+    table.cmp th, table.cmp td{ padding:10px 8px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .scan-line{ animation:none; opacity:1; transform:none; }
+    .blob{ animation:none; }
+    .reveal{ transition:none; opacity:1; transform:none; }
+    .scan-card::before{ animation:none; }
+  }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="blobs">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<header>
+  <nav>
+    <div class="logo"><span class="mark">S</span>StoreSage</div>
+    <div class="nav-links">
+      <ul>
+        <li><a href="#gap">The gap</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#interview">Interview</a></li>
+        <li><a href="#report">Report</a></li>
+        <li><a href="#compare">Compare</a></li>
+      </ul>
+      <a href="#cta" class="nav-cta">Get early access</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>AI Business Consultant for E-commerce</div>
+    <h1 class="hero-title">Your store, <span class="grad-text">audited and advised</span> — automatically.</h1>
+    <p class="hero-sub">StoreSage reads your storefront, studies your real competitors, and asks you a few sharp questions — then hands back a strategy report, not another dashboard full of numbers to interpret yourself.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('urlInput').focus(); document.getElementById('scan').scrollIntoView({behavior:'smooth'});">Run a free audit</button>
+      <a href="#how" class="btn-ghost" style="text-decoration:none; display:inline-flex; align-items:center;">See how it works</a>
+    </div>
+
+    <div class="scan-card" id="scan">
+      <div class="scan-head">
+        <span class="mono">Live audit preview</span>
+        <span class="status-pill off" id="apiStatus"><span class="dot"></span>checking API…</span>
+      </div>
+      <form class="scan-form" id="scanForm">
+        <input id="urlInput" type="text" placeholder="yourstore.com" autocomplete="off" />
+        <button type="submit" id="scanBtn">Run audit</button>
+      </form>
+      <div class="scan-body" id="scanBody">
+        <div class="scan-placeholder" id="placeholder">— no audit run yet —<br>enter a store URL and press "Run audit"</div>
+      </div>
+      <div class="chat" id="liveChat" style="display:none; margin:0 26px 22px; border-radius:14px;"></div>
+    </div>
+
+    <div class="report-card" id="livereportCard" style="display:none;">
+      <div class="rh">
+        <span class="display" style="font-size:16px; font-weight:600;">Your Growth Report</span>
+        <span class="mono" id="liveReportUrl"></span>
+      </div>
+      <div class="report-col" style="border-right:none; border-bottom:1px solid var(--border);">
+        <div class="ct">SEO &amp; Google ranking snapshot</div>
+        <ul id="liveSeoList"></ul>
+      </div>
+      <div class="report-cols">
+        <div class="report-col">
+          <div class="ct">Competitor comparisons</div>
+          <ul id="liveComparisons"></ul>
+        </div>
+        <div class="report-col">
+          <div class="ct">Detected weaknesses</div>
+          <ul id="liveWeaknesses"></ul>
+        </div>
+        <div class="report-col">
+          <div class="ct">Recommendations</div>
+          <ul id="liveRecommendations"></ul>
+        </div>
+      </div>
+      <div class="report-col" style="border-right:none; border-top:1px solid var(--border);">
+        <div class="ct">Your roadmap to that goal</div>
+        <ul id="liveRoadmap"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gap" class="dark reveal">
+  <div class="wrap">
+    <div class="section-label">01 — The problem</div>
+    <h2 class="section-title">Store owners get data. They rarely get a decision.</h2>
+    <p class="section-sub">Professional consulting is priced for enterprises. SEO and analytics tools hand you numbers and leave the interpreting to you. Neither tells a small store what to actually change this week.</p>
+    <div class="gap-grid">
+      <div class="gap-item">
+        <div class="mono tag">Traditional consulting</div>
+        <div class="qty">$150+/hr</div>
+        <p>Out of reach for most small and medium stores, and slow to turn around.</p>
+      </div>
+      <div class="gap-item">
+        <div class="mono tag">SEO / analytics tools</div>
+        <div class="qty">Raw data</div>
+        <p>Ahrefs, Moz, Similarweb and the rest report on one slice each — you still connect the dots.</p>
+      </div>
+      <div class="gap-item">
+        <div class="mono tag">StoreSage</div>
+        <div class="qty">A strategy</div>
+        <p>Website, competitors, and your own context — reasoned into a report you can act on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="reveal">
+  <div class="wrap">
+    <div class="section-label">02 — How it works</div>
+    <h2 class="section-title">Four inputs, reasoned together, one report out.</h2>
+    <p class="section-sub">Each step feeds the next. Nothing is analyzed in isolation.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Analyze the store</h3>
+        <p>StoreSage crawls your catalog, pricing patterns, category structure, and the page elements that drive conversion — no manual setup required.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Find and study competitors</h3>
+        <p>Stores selling into the same niche are identified automatically and compared on pricing, product variety, discounting, and positioning.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Ask you a few questions</h3>
+        <p>A short AI-guided interview fills in what data alone can't show: your goals, your customers, your real constraints.</p>
+      </div>
+      <div class="step">
+        <div class="num">04</div>
+        <h3>Generate the growth report</h3>
+        <p>All three inputs go into the reasoning engine, which returns competitor comparisons, detected weaknesses, and specific recommendations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="interview" style="background:var(--bg-soft);" class="reveal">
+  <div class="wrap">
+    <div class="section-label">03 — The discovery interview</div>
+    <h2 class="section-title">Context an analytics dashboard can't collect on its own.</h2>
+    <p class="section-sub">Before the report is built, StoreSage's chatbot asks about your goals, your customers, your pricing stance, and what's actually been getting in the way.</p>
+    <div class="interview-grid">
+      <div class="chat" id="chatDemo">
+        <div class="bubble bot"><span class="mono">StoreSage</span>What's the main goal for the store right now — more traffic, higher conversion, or repeat customers?</div>
+        <div class="bubble user"><span class="mono">You</span>Conversion. We get visitors but checkout drop-off is high.</div>
+        <div class="bubble bot"><span class="mono">StoreSage</span>Got it. How would you describe your pricing versus the two or three competitors you watch most closely?</div>
+        <div class="bubble user"><span class="mono">You</span>Probably a bit higher, but our product quality is better.</div>
+        <div class="typing" id="typingIndicator"><span></span><span></span><span></span></div>
+      </div>
+      <div>
+        <h3 class="display" style="font-size:22px; font-weight:600; margin-bottom:14px;">Why this step matters</h3>
+        <p style="font-size:15px; line-height:1.65; color:var(--muted); margin-bottom:14px;">Two stores can share almost identical metrics and still need opposite advice — one is scaling ad spend, the other is protecting margin. The interview is how StoreSage tells the difference before it writes a single recommendation.</p>
+        <p style="font-size:15px; line-height:1.65; color:var(--muted);">Every answer is stored and passed straight into the reasoning engine alongside the website and competitor data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="report" class="reveal">
+  <div class="wrap">
+    <div class="section-label">04 — The output</div>
+    <h2 class="section-title">One structured report. Nothing left to interpret.</h2>
+    <p class="section-sub">Everything StoreSage finds is organized into three columns — what your competitors are doing, what's holding your store back, and what to do about it.</p>
+    <div class="report-card">
+      <div class="rh">
+        <span class="display" style="font-size:16px; font-weight:600;">Growth Strategy Report</span>
+        <span class="mono">yourstore.com</span>
+      </div>
+      <div class="report-cols">
+        <div class="report-col">
+          <div class="ct">Competitor comparisons</div>
+          <ul>
+            <li>3 of 5 niche competitors run tiered bundle pricing you don't offer</li>
+            <li>Average competitor catalog is 40% larger</li>
+            <li>Two competitors run always-on free shipping thresholds</li>
+          </ul>
+        </div>
+        <div class="report-col">
+          <div class="ct">Detected weaknesses</div>
+          <ul>
+            <li>Checkout requires account creation before payment</li>
+            <li>Product pages lack size/fit guidance</li>
+            <li>No urgency or scarcity signals on high-traffic pages</li>
+          </ul>
+        </div>
+        <div class="report-col">
+          <div class="ct">Strategic recommendations</div>
+          <ul>
+            <li>Add guest checkout to reduce drop-off</li>
+            <li>Introduce a starter bundle to match competitor pricing tiers</li>
+            <li>Test a free-shipping threshold against current margin</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compare" class="dark reveal">
+  <div class="wrap">
+    <div class="section-label">05 — Where this fits</div>
+    <h2 class="section-title" style="color:#fff;">Not another data source. The layer above them.</h2>
+    <p class="section-sub">StoreSage doesn't replace SEO or monitoring tools — it reads their kind of output and turns it into a decision.</p>
+    <table class="cmp" style="color:#fff;">
+      <thead>
+        <tr><th>Tool</th><th>Website analysis</th><th>Competitor pricing</th><th>Owner context</th><th>Strategy, not just data</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ahrefs / Moz</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+        <tr><td>Similarweb / SEMrush</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+        <tr><td>Browse.ai / Visualping</td><td class="no">No</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td></tr>
+        <tr class="highlight"><td>StoreSage</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="cta reveal" id="cta">
+  <div class="wrap">
+    <h2>Built for stores too small for a consultant, too busy for a dashboard.</h2>
+    <p>StoreSage is opening early access in waves. Leave your email to get in the next batch of audits.</p>
+    <form class="cta-form" id="waitlistForm">
+      <input id="waitlistEmail" type="email" placeholder="you@yourstore.com" required />
+      <button type="submit" id="waitlistBtn">Notify me</button>
+    </form>
+    <div class="cta-note" id="waitlistNote">Connects to the StoreSage API when the backend is running locally.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="mono">StoreSage — AI Business Consultant for E-commerce Stores</span>
+    <span class="mono">© 2026 StoreSage</span>
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el=>io.observe(el));
+
+  // Backend base URL — change if deployed elsewhere
+  const API_BASE = 'http://localhost:4000/api';
+
+  const apiStatus = document.getElementById('apiStatus');
+  fetch(API_BASE + '/health').then(r=>r.json()).then(()=>{
+    apiStatus.classList.remove('off');
+    apiStatus.innerHTML = '<span class="dot"></span>API connected';
+  }).catch(()=>{
+    apiStatus.innerHTML = '<span class="dot"></span>demo mode (backend offline)';
+  });
+
+  // Scan form — tries the real backend, falls back to a local simulation
+  const scanForm = document.getElementById('scanForm');
+  const urlInput = document.getElementById('urlInput');
+  const scanBtn = document.getElementById('scanBtn');
+  const scanBody = document.getElementById('scanBody');
+  const placeholder = document.getElementById('placeholder');
+
+  const fallbackSteps = [
+    { label: 'Fetching storefront', status: 'OK' },
+    { label: 'Reading product catalog', status: 'OK' },
+    { label: 'Mapping pricing patterns', status: 'OK' },
+    { label: 'Scanning niche competitors', status: 'OK' },
+    { label: 'Comparing positioning', status: 'OK' },
+    { label: 'Queuing discovery interview', status: 'READY' },
+  ];
+
+  function printLines(lines, url){
+    scanBody.innerHTML = '';
+    let delay = 0;
+    lines.forEach((step, i) => {
+      delay += 260;
+      setTimeout(() => {
+        const line = document.createElement('div');
+        line.className = 'scan-line';
+        line.innerHTML = '<span>' + step.label + '</span><span class="status">' + step.status + '</span>';
+        scanBody.appendChild(line);
+        if (i === lines.length - 1) {
+          const total = document.createElement('div');
+          total.className = 'scan-total';
+          total.innerHTML = '<span>Preview for ' + url + '</span><span>' + lines.length + '/' + lines.length + ' checks complete</span>';
+          scanBody.appendChild(total);
+        }
+      }, delay);
+    });
+  }
+
+  // --- Live interview chatbot: runs in the scan card while the audit is "in progress" ---
+  const liveChat = document.getElementById('liveChat');
+
+  function addBubble(text, who){
+    const b = document.createElement('div');
+    b.className = 'bubble ' + who;
+    b.innerHTML = '<span class="mono">' + (who === 'bot' ? 'StoreSage' : 'You') + '</span>' + text;
+    liveChat.appendChild(b);
+    liveChat.scrollTop = liveChat.scrollHeight;
+    return b;
+  }
+
+  function addAnswerRow(onSubmit){
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:8px; align-self:stretch;';
+    row.innerHTML = `
+      <input type="text" placeholder="Type your answer…" style="flex:1; border:1px solid var(--border); background:var(--bg-soft); color:var(--ink); border-radius:10px; padding:10px 12px; font-family:Inter; font-size:13.5px;" />
+      <button type="button" style="background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f; border:none; padding:0 16px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer;">Send</button>
+    `;
+    const input = row.querySelector('input');
+    const btn = row.querySelector('button');
+    const submit = () => {
+      const val = input.value.trim();
+      if (!val) return;
+      row.remove();
+      addBubble(val, 'user');
+      onSubmit(val);
+    };
+    btn.addEventListener('click', submit);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    liveChat.appendChild(row);
+    input.focus();
+  }
+
+  // Runs the discovery interview against the real backend. Falls back to a fixed
+  // local question set (mirroring routes/interview.js) if the backend is offline,
+  // so the demo still works standalone.
+  async function runInterview(){
+    const localQuestions = [
+      { key: 'goal', text: "While that scan runs — what's the main goal for the store right now? (more traffic, higher conversion, or repeat customers)" },
+      { key: 'targetCustomers', text: 'Who is your ideal customer, in a sentence or two?' },
+      { key: 'pricingStance', text: 'How would you describe your pricing versus your closest competitors?' },
+      { key: 'challenges', text: "What's the biggest thing getting in the way of growth right now?" },
+    ];
+
+    let sessionId = null;
+    let useBackend = true;
+    try {
+      const startRes = await fetch(API_BASE + '/interview/start', { method: 'POST' });
+      if (!startRes.ok) throw new Error('offline');
+      const startData = await startRes.json();
+      sessionId = startData.sessionId;
+      addBubble(startData.question, 'bot');
+    } catch (err) {
+      useBackend = false;
+      addBubble(localQuestions[0].text, 'bot');
+    }
+
+    return new Promise((resolve) => {
+      const localAnswers = {};
+      let localStep = 0;
+
+      function ask(nextQuestionText){
+        addAnswerRow(async (answer) => {
+          if (useBackend) {
+            try {
+              const res = await fetch(API_BASE + '/interview/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, answer })
+              });
+              if (!res.ok) throw new Error('offline');
+              const data = await res.json();
+              if (data.done) {
+                addBubble("That's everything I need — building your report now.", 'bot');
+                resolve(data.answers);
+                return;
+              }
+              addBubble(data.question, 'bot');
+              ask();
+              return;
+            } catch (err) {
+              useBackend = false; // fall through to local mode below
+            }
+          }
+          // local fallback mode
+          localAnswers[localQuestions[localStep].key] = answer;
+          localStep += 1;
+          if (localStep >= localQuestions.length) {
+            addBubble("That's everything I need — building your report now.", 'bot');
+            resolve(localAnswers);
+            return;
+          }
+          addBubble(localQuestions[localStep].text, 'bot');
+          ask();
+        });
+      }
+      ask();
+    });
+  }
+
+  // --- Live report rendering ---
+  const reportCard = document.getElementById('livereportCard');
+  const liveReportUrl = document.getElementById('liveReportUrl');
+  const liveSeoList = document.getElementById('liveSeoList');
+  const liveComparisons = document.getElementById('liveComparisons');
+  const liveWeaknesses = document.getElementById('liveWeaknesses');
+  const liveRecommendations = document.getElementById('liveRecommendations');
+  const liveRoadmap = document.getElementById('liveRoadmap');
+
+  function fillList(el, items){
+    el.innerHTML = '';
+    (items || []).forEach(text => {
+      const li = document.createElement('li');
+      li.textContent = text;
+      el.appendChild(li);
+    });
+  }
+
+  function seoLines(seo){
+    if (!seo) return ['SEO snapshot unavailable in demo mode.'];
+    return [
+      'Estimated Google ranking: ' + (seo.googleRankingEstimate || 'unknown'),
+      'Page speed score: ' + (seo.pageSpeedScore !== undefined ? seo.pageSpeedScore + '/100' : 'unknown'),
+      'Mobile-friendly: ' + (seo.mobileFriendly === undefined ? 'unknown' : (seo.mobileFriendly ? 'yes' : 'no')),
+      'Meta descriptions missing: ' + (seo.metaDescriptionMissing === undefined ? 'unknown' : (seo.metaDescriptionMissing ? 'yes' : 'no')),
+      'Product image alt-text coverage: ' + (seo.altTextCoverage !== undefined ? seo.altTextCoverage + '%' : 'unknown'),
+    ];
+  }
+
+  scanForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const url = urlInput.value.trim() || 'yourstore.com';
+    scanBtn.disabled = true;
+    scanBtn.textContent = 'Scanning…';
+    placeholder.style.display = 'none';
+    scanBody.innerHTML = '';
+    liveChat.innerHTML = '';
+    liveChat.style.display = 'flex';
+    liveChat.style.flexDirection = 'column';
+    liveChat.style.gap = '12px';
+    liveChat.style.padding = '18px';
+    reportCard.style.display = 'none';
+
+    // Kick off the website analysis and the live interview chatbot at the same time —
+    // the chatbot fills the "waiting on the scan" time instead of a blank loading state.
+    const analyzePromise = (async () => {
+      try {
+        const res = await fetch(API_BASE + '/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        if (!res.ok) throw new Error('backend error');
+        const data = await res.json();
+        printLines(data.steps || fallbackSteps, url);
+        return data.summary;
+      } catch (err) {
+        printLines(fallbackSteps, url);
+        return { url };
+      }
+    })();
+
+    const competitorsPromise = (async () => {
+      try {
+        const res = await fetch(API_BASE + '/competitors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        if (!res.ok) throw new Error('backend error');
+        const data = await res.json();
+        return data.competitors || [];
+      } catch (err) {
+        return [];
+      }
+    })();
+
+    const interviewPromise = runInterview();
+
+    const [analysis, competitors, interviewAnswers] = await Promise.all([analyzePromise, competitorsPromise, interviewPromise]);
+
+    let report;
+    try {
+      const res = await fetch(API_BASE + '/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analysis, competitors, interviewAnswers })
+      });
+      if (!res.ok) throw new Error('backend error');
+      report = await res.json();
+    } catch (err) {
+      report = {
+        url,
+        seoSnapshot: analysis.seo,
+        competitorComparisons: ['Competitor data unavailable in demo mode.'],
+        weaknesses: ['Full weakness detection needs the backend running.'],
+        recommendations: ['Start the StoreSage backend for a real, personalized report.'],
+        goalRoadmap: ['Start the backend and re-run this audit for a real roadmap.'],
+      };
+    }
+
+    liveReportUrl.textContent = report.url || url;
+    fillList(liveSeoList, seoLines(report.seoSnapshot));
+    fillList(liveComparisons, report.competitorComparisons);
+    fillList(liveWeaknesses, report.weaknesses);
+    fillList(liveRecommendations, report.recommendations);
+    fillList(liveRoadmap, report.goalRoadmap);
+    reportCard.style.display = 'block';
+    reportCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    scanBtn.disabled = false;
+    scanBtn.textContent = 'Run another audit';
+  });
+
+  // Waitlist form — posts to backend, falls back to a local confirmation
+  const waitlistForm = document.getElementById('waitlistForm');
+  const waitlistNote = document.getElementById('waitlistNote');
+  const waitlistBtn = document.getElementById('waitlistBtn');
+
+  waitlistForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const email = document.getElementById('waitlistEmail').value.trim();
+    waitlistBtn.disabled = true;
+    waitlistBtn.textContent = 'Saving…';
+    try {
+      const res = await fetch(API_BASE + '/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (!res.ok) throw new Error('backend error');
+      waitlistNote.textContent = "You're on the list — saved to the StoreSage waitlist.";
+    } catch (err) {
+      waitlistNote.textContent = "Saved locally (demo mode) — start the backend to persist this.";
+    }
+    waitlistBtn.disabled = false;
+    waitlistBtn.textContent = 'Notify me';
+    waitlistForm.reset();
+  });
+</script>
+
+</body>
+</html>

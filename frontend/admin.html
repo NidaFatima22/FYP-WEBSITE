@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoreSage Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0B12; --bg-soft:#131320; --ink:#F3F1FA; --muted:#A6A2BE;
+    --gold:#F2B705; --gold-2:#FFD34D; --violet:#8C6BFF; --teal:#2FE6C4;
+    --card:#15151F; --border:rgba(255,255,255,0.09); --danger:#FF6B6B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--ink); font-family:'Inter', sans-serif; min-height:100vh; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .display{ font-family:'Fraunces', serif; }
+
+  /* ---- login screen ---- */
+  #loginScreen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:380px; background:var(--card); border:1px solid var(--border);
+    border-radius:18px; padding:36px 32px; box-shadow:0 30px 80px -35px rgba(0,0,0,0.6);
+  }
+  .login-card .logo{ display:flex; align-items:center; gap:9px; font-family:'Fraunces'; font-weight:600; font-size:20px; margin-bottom:6px; }
+  .login-card .mark{
+    width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, var(--gold), var(--violet));
+    display:flex; align-items:center; justify-content:center; color:#14131f; font-weight:700; font-size:14px;
+  }
+  .login-card .sub{ font-size:13px; color:var(--muted); margin-bottom:26px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-family:'IBM Plex Mono'; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:6px; }
+  .field input{
+    width:100%; border:1px solid var(--border); background:var(--bg-soft); border-radius:10px;
+    padding:11px 13px; font-family:'IBM Plex Mono'; font-size:13px; color:var(--ink);
+  }
+  .field input:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+  .login-btn{
+    width:100%; margin-top:8px; background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f;
+    border:none; padding:13px; border-radius:10px; font-weight:600; font-size:14px; cursor:pointer;
+  }
+  .login-btn:disabled{ opacity:.6; cursor:default; }
+  .login-error{ margin-top:14px; font-size:13px; color:var(--danger); display:none; }
+
+  /* ---- dashboard ---- */
+  #dashboard{ display:none; }
+  header{ border-bottom:1px solid var(--border); background:var(--card); }
+  nav{ max-width:1100px; margin:0 auto; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; }
+  .logo{ display:flex; align-items:center; gap:9px; font-family:'Fraunces'; font-weight:600; font-size:19px; }
+  .logo .mark{
+    width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg, var(--gold), var(--violet));
+    display:flex; align-items:center; justify-content:center; color:#14131f; font-weight:700; font-size:13px;
+  }
+  .logout-btn{
+    background:transparent; border:1px solid var(--border); color:var(--ink); padding:9px 16px;
+    border-radius:100px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .wrap{ max-width:1100px; margin:0 auto; padding:36px 28px 80px; }
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:36px; }
+  .stat{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; }
+  .stat .mono{ font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  .stat .num{ font-family:'Fraunces'; font-size:30px; font-weight:600; margin-top:8px; color:var(--gold-2); }
+
+  .tabs{ display:flex; gap:8px; margin-bottom:20px; }
+  .tab{
+    background:transparent; border:1px solid var(--border); padding:9px 18px; border-radius:100px;
+    font-size:13px; font-weight:600; cursor:pointer; color:var(--muted);
+  }
+  .tab.active{ background:linear-gradient(100deg, var(--gold), var(--gold-2)); color:#14131f; border-color:transparent; }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  table{ width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  th, td{ text-align:left; padding:13px 16px; border-bottom:1px solid var(--border); font-size:13.5px; vertical-align:top; }
+  th{ font-family:'IBM Plex Mono'; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); background:var(--bg-soft); }
+  tr:last-child td{ border-bottom:none; }
+  .badge{ display:inline-block; padding:3px 9px; border-radius:100px; font-family:'IBM Plex Mono'; font-size:10.5px; font-weight:600; }
+  .badge.claude{ background:rgba(140,107,255,0.16); color:var(--violet); }
+  .badge.rule{ background:rgba(47,230,196,0.14); color:var(--teal); }
+  .empty{ text-align:center; padding:40px; color:var(--muted); font-size:13.5px; }
+  details summary{ cursor:pointer; font-weight:600; font-size:13px; color:var(--gold-2); }
+  details ul{ margin:10px 0 0 18px; font-size:13px; line-height:1.6; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="logo"><span class="mark">S</span>StoreSage Admin</div>
+    <div class="sub">Sign in with the credentials set in your backend's .env</div>
+    <form id="loginForm">
+      <div class="field">
+        <label>Username</label>
+        <input id="username" type="text" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+      </div>
+      <button class="login-btn" type="submit" id="loginBtn">Sign in</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<div id="dashboard">
+  <header>
+    <nav>
+      <div class="logo"><span class="mark">S</span>StoreSage Admin</div>
+      <button class="logout-btn" id="logoutBtn">Log out</button>
+    </nav>
+  </header>
+
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><div class="mono">Total audits run</div><div class="num" id="statAudits">—</div></div>
+      <div class="stat"><div class="mono">Waitlist signups</div><div class="num" id="statWaitlist">—</div></div>
+      <div class="stat"><div class="mono">Powered by Claude</div><div class="num" id="statClaude">—</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-panel="auditsPanel">Audits</button>
+      <button class="tab" data-panel="waitlistPanel">Waitlist</button>
+    </div>
+
+    <div class="panel active" id="auditsPanel">
+      <table>
+        <thead><tr><th>Store URL</th><th>When</th><th>Engine</th><th>Owner goal</th><th>Report</th></tr></thead>
+        <tbody id="auditsBody"></tbody>
+      </table>
+      <div class="empty" id="auditsEmpty" style="display:none;">No audits run yet — they'll show up here as soon as someone uses the site.</div>
+    </div>
+
+    <div class="panel" id="waitlistPanel">
+      <table>
+        <thead><tr><th>Email</th><th>Joined</th></tr></thead>
+        <tbody id="waitlistBody"></tbody>
+      </table>
+      <div class="empty" id="waitlistEmpty" style="display:none;">No waitlist signups yet.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:4000/api';
+  let token = sessionStorage.getItem('storesage_admin_token');
+
+  const loginScreen = document.getElementById('loginScreen');
+  const dashboard = document.getElementById('dashboard');
+  const loginForm = document.getElementById('loginForm');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginError = document.getElementById('loginError');
+
+  function showDashboard(){
+    loginScreen.style.display = 'none';
+    dashboard.style.display = 'block';
+    loadData();
+  }
+
+  function showLogin(){
+    sessionStorage.removeItem('storesage_admin_token');
+    token = null;
+    loginScreen.style.display = 'flex';
+    dashboard.style.display = 'none';
+  }
+
+  loginForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    loginError.style.display = 'none';
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in…';
+    try {
+      const res = await fetch(API_BASE + '/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value.trim(),
+          password: document.getElementById('password').value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      token = data.token;
+      sessionStorage.setItem('storesage_admin_token', token);
+      showDashboard();
+    } catch (err) {
+      loginError.textContent = err.message.includes('fetch') ? 'Cannot reach the backend — is it running on localhost:4000?' : err.message;
+      loginError.style.display = 'block';
+    }
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Sign in';
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async function(){
+    try { await fetch(API_BASE + '/admin/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }); } catch (e) {}
+    showLogin();
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  async function authedFetch(path){
+    const res = await fetch(API_BASE + path, { headers: { Authorization: 'Bearer ' + token } });
+    if (res.status === 401) { showLogin(); throw new Error('Session expired'); }
+    return res.json();
+  }
+
+  function fmtDate(iso){
+    try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
+  }
+
+  async function loadData(){
+    try {
+      const [{ audits }, { waitlist }] = await Promise.all([
+        authedFetch('/admin/audits'),
+        authedFetch('/admin/waitlist'),
+      ]);
+
+      document.getElementById('statAudits').textContent = audits.length;
+      document.getElementById('statWaitlist').textContent = waitlist.length;
+      document.getElementById('statClaude').textContent = audits.filter(a => a.source === 'claude').length + ' / ' + audits.length;
+
+      const auditsBody = document.getElementById('auditsBody');
+      auditsBody.innerHTML = '';
+      document.getElementById('auditsEmpty').style.display = audits.length ? 'none' : 'block';
+      audits.forEach(a => {
+        const tr = document.createElement('tr');
+        const badgeClass = a.source === 'claude' ? 'claude' : 'rule';
+        const badgeLabel = a.source === 'claude' ? 'Claude' : 'rule-based';
+        const recs = (a.report && a.report.recommendations) || [];
+        tr.innerHTML = `
+          <td class="mono">${a.url}</td>
+          <td>${fmtDate(a.generatedAt)}</td>
+          <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+          <td>${(a.interviewAnswers && a.interviewAnswers.goal) || '—'}</td>
+          <td><details><summary>${recs.length} recommendations</summary><ul>${recs.map(r => '<li>' + r + '</li>').join('')}</ul></details></td>
+        `;
+        auditsBody.appendChild(tr);
+      });
+
+      const waitlistBody = document.getElementById('waitlistBody');
+      waitlistBody.innerHTML = '';
+      document.getElementById('waitlistEmpty').style.display = waitlist.length ? 'none' : 'block';
+      waitlist.forEach(w => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="mono">${w.email}</td><td>${fmtDate(w.joinedAt)}</td>`;
+        waitlistBody.appendChild(tr);
+      });
+    } catch (err) {
+      // handled by showLogin() on 401; other errors just leave stats blank
+    }
+  }
+
+  if (token) { showDashboard(); } else { showLogin(); }
+</script>
+
+</body>
+</html>
